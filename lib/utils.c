@@ -99,6 +99,7 @@ void write_to_physical(unsigned char *physical)
         else
         {
             physical[i] = '$'; //leave the physical memory empty
+            //if a fprintf was used instead of the array, it would wipe the text file
         }
         currentAddress++; // increment the currentAddress
     }
@@ -126,7 +127,6 @@ void write_to_page(unsigned char *page_table, unsigned char *physicalAdd)
 //Swapping
 int swap(unsigned char *physMem, unsigned char *pageT, unsigned int pfn, unsigned int vpn)
 {
-    unsigned char another;
     int tinyMemory = PAGE_SIZE; // the swap space has a total of 512 bytes
     printf("\nSWAPPING \n");
 
@@ -144,11 +144,9 @@ int swap(unsigned char *physMem, unsigned char *pageT, unsigned int pfn, unsigne
                                                         // frame is multiplied by 256 + the value of x
                                                         //
             }
-            another = (int)i / 256;
             i = MAX_MEMPRY;
         }
     }
-    physMem[vpn] = another;
     physMem[vpn + 256] = 0x01;
     return 0;
 }

@@ -23,14 +23,14 @@
 
 void user(unsigned char *physical, unsigned char *page_table)
 {
-    while (1)
+    while (1) //while not -1 keeps the input working
     {
         printf("Input any Hexadecimal Address: ");
         scanf("%04x", &user_input);//allow only 4 characters 
 
         //get the offset
         offset_mask = OFFSET_MASK;
-        offset = user_input & offset_mask;
+        offset = user_input & offset_mask; //combine both the first 8 bit offset to the offset mask
 
         //get virtual page number by shifting the extracted offset and combining it with the 8 bit offset
         unsigned int virtual_page = user_input >> OFFSET_LAST; // the inputted hexadecimal address is shifted 8 bits to the right
@@ -48,12 +48,10 @@ void user(unsigned char *physical, unsigned char *page_table)
         else // show content and what was inputted
         {
             //shows the content
-            unsigned int address = physical_add << OFFSET_LAST;
-            address |= offset;
-            unsigned char content = physical[address];
-            printf("\n\t\tPhysical Address: 0x%x\n", address);
-            printf("\n\t\tContent: %c\n", content);
-            printf("\n--------------------------------------------------------------------------------------\n");
+            unsigned int inputtedAddress = physical_add << OFFSET_LAST; // shift bits to the left
+            unsigned char content = physical[inputtedAddress];
+            printf("\t\tPhysical Address: 0x%x\n", inputtedAddress);
+            printf("\t\tContent: %c\n", content);
         }
     }
 }
@@ -61,9 +59,7 @@ void user(unsigned char *physical, unsigned char *page_table)
 void write_to_physical(unsigned char *physical)
 {
     physicalMemory = fopen("./data/physical_memory2.txt", "w");
-    pageTable = fopen("./data/page_table2.txt", "w");
     fprintf(physicalMemory, "Address\t\t\t\tFrame/Hex\t\t\t\tContent\n");
-    fprintf(pageTable, "Page\t\t\t\tFrame\t\t\t\ti\n");
     srand(time(NULL));
     randomBytes = generateRandomBytes(Max_Byte, Min_Byte);
 
@@ -98,7 +94,7 @@ void write_to_physical(unsigned char *physical)
         }
         else
         {
-            physical[i] = '$'; //leave the physical memory empty
+            physical[i] = ' '; //leave the physical memory empty
             //if a fprintf was used instead of the array, it would wipe the text file
         }
         currentAddress++; // increment the currentAddress
@@ -111,16 +107,14 @@ void write_to_page(unsigned char *page_table, unsigned char *physicalAdd)
 {
 
     pageTable = fopen("./data/page_table.txt", "w");
-    fprintf(pageTable, "Address\t|\tFrame\t|\tContent\n");
+    fprintf(pageTable, "Page\t\tPage Entry\t\tContent\n");
 
     for (int i = 0; i < PAGE_SIZE; i++)
     {
         char content = (rand() % (127 - 33)) + 33;
-        page_table[i] = content;
-        fprintf(pageTable, "0x%02x\t\t0x%02x\t\t%c\n", i, (int)i / 256, page_table[i]);
+        fprintf(pageTable, "0x%02x\t\t0x%02x\t\t%c\n", i, (int)i/ 256, page_table[i]); // without the (int) the while loops keeps looping infinitely
     }
 
-    printf("\n");
     fclose(pageTable);
 }
 
